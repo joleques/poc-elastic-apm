@@ -1,0 +1,7 @@
+#volume do elasticsearch
+elasticsearch-data/nodes
+infra
+
+# Coverage reports
+coverage
+#.env

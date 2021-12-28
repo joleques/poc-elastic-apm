@@ -1,0 +1,22 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="GeradorNomeTimesApplication" type="Application" factoryName="Application" nameIsGenerated="true">
+    <envs>
+      <env name="SERVER_PORT" value="8002" />
+      <env name="NAME_HOST" value="http://localhost" />
+      <env name="NAME_PORT" value="8001" />
+      <env name="CIDADE_HOST" value="http://localhost" />
+      <env name="CIDADE_PORT" value="8000" />
+    </envs>
+    <option name="MAIN_CLASS_NAME" value="com.pocs.geradornometimes.GeradorNomeTimesApplication" />
+    <module name="gerador-nome-times.main" />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="com.pocs.geradornometimes.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

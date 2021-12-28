@@ -1,0 +1,31 @@
+plugins {
+	id 'org.springframework.boot' version '2.4.3'
+	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+	id 'java'
+}
+
+group = 'com.pocs'
+sourceCompatibility = '11'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-web:2.4.3'
+	
+	implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
+
+	implementation group: 'net.logstash.logback', name: 'logstash-logback-encoder', version: '6.6'
+	
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+
+	implementation 'co.elastic.apm:elastic-apm-agent:1.28.3'
+
+	runtimeOnly 'org.springframework.boot:spring-boot-starter-actuator:2.5.2'
+}
+
+test {
+	useJUnitPlatform()
+}

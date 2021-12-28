@@ -1,0 +1,167 @@
+version: '3.0'
+
+services:      
+  gerador-nomes-times-java:
+    build: ./gerador-nome-times
+    image: gerador-nomes-times-java:latest
+    cap_add:
+      - AUDIT_CONTROL
+      - AUDIT_READ
+    container_name: gerador-nomes-times-java
+    hostname: gerador-nomes-times-java
+    pid: host
+    ports:
+      - "8000:8000"
+    networks:
+      - poc-elastic
+    depends_on:      
+      apm-server:
+        condition: service_healthy
+    environment:
+      - SERVER_PORT=8000
+      - NAME_HOST=http://nome-time-java
+      - NAME_PORT=8001
+      - CIDADE_HOST=http://cidade-time-java
+      - CIDADE_PORT=8002
+      - APP_ENV=gerador-nomes-times-java
+      - ELASTIC_APM_SERVICE_NAME=gerador-nomes-times-java
+      - ELASTIC_APM_SERVER_URL=http://apm-server:8200
+      - ELASTIC_APM_APPLICATION_PACKAGES=com.pocs.cidadetimeservice.*
+      - ELASTIC_APM_PROFILING_INFERRED_SPANS_ENABLED=true
+      - ELASTIC_APM_ENABLE_LOG_CORRELATION=true
+    healthcheck:
+      interval: 10s
+      retries: 100
+      test: curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null http://localhost:9090/health
+      
+  cidade-time-java:
+    build: ./cidade-time-service
+    image: cidade-time-java:latest
+    cap_add:
+      - AUDIT_CONTROL
+      - AUDIT_READ
+    container_name: cidade-time-java
+    hostname: cidade-time-java
+    pid: host
+    ports:
+      - "8002:8002"
+    networks:
+      - poc-elastic
+    depends_on:
+      apm-server:
+        condition: service_healthy
+      nome-time-java:
+        condition: service_healthy
+    environment:
+      - SERVER_PORT=8002
+      - APP_ENV=cidade-time-java
+      - ELASTIC_APM_SERVICE_NAME=cidade-time-java
+      - ELASTIC_APM_SERVER_URL=http://apm-server:8200
+      - ELASTIC_APM_APPLICATION_PACKAGES=com.pocs.cidadetimeservice.*
+      - ELASTIC_APM_PROFILING_INFERRED_SPANS_ENABLED=true
+      - ELASTIC_APM_ENABLE_LOG_CORRELATION=true
+    healthcheck:
+      interval: 10s
+      retries: 100
+      test: curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null http://localhost:9090/health
+      
+  nome-time-java:
+    build: ./nome-time-service
+    image: nome-time-java:latest
+    cap_add:
+      - AUDIT_CONTROL
+      - AUDIT_READ
+    container_name: nome-time-java
+    hostname: nome-time-java
+    pid: host
+    ports:
+      - "8001:8001"
+    networks:
+      - poc-elastic
+    depends_on:
+      apm-server:
+        condition: service_healthy
+    environment:
+      - SERVER_PORT=8001
+      - APP_ENV=nome-time-java
+      - ELASTIC_APM_SERVICE_NAME=nome-time-java
+      - ELASTIC_APM_SERVER_URL=http://apm-server:8200
+      - ELASTIC_APM_APPLICATION_PACKAGES=com.pocs.nometimeservice.*
+      - ELASTIC_APM_PROFILING_INFERRED_SPANS_ENABLED=true
+      - ELASTIC_APM_ENABLE_LOG_CORRELATION=true
+    healthcheck:
+      interval: 10s
+      retries: 100
+      test: curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null http://localhost:9090/health
+  apm-server:
+    image: docker.elastic.co/apm/apm-server:7.16.0
+    container_name: apm-server
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+      kibana:
+        condition: service_healthy
+    cap_add: ["CHOWN", "DAC_OVERRIDE", "SETGID", "SETUID"]
+    cap_drop: ["ALL"]
+    ports:
+    - 8200:8200
+    networks:
+    - poc-elastic
+    command: >
+       apm-server -e
+         -E apm-server.rum.enabled=true
+         -E setup.kibana.host=kibana:5601
+         -E setup.template.settings.index.number_of_replicas=0
+         -E apm-server.kibana.enabled=true
+         -E apm-server.kibana.host=kibana:5601
+         -E output.elasticsearch.hosts=["elasticsearch:9200"]
+    healthcheck:
+      interval: 10s
+      retries: 12
+      test: curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null http://localhost:8200/
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.16.0
+    container_name: elasticsearch
+    environment:
+    - bootstrap.memory_lock=true
+    - cluster.name=docker-cluster
+    - cluster.routing.allocation.disk.threshold_enabled=false
+    - discovery.type=single-node
+    - ES_JAVA_OPTS=-XX:UseAVX=2 -Xms1g -Xmx1g
+    ulimits:
+      memlock:
+        hard: -1
+        soft: -1
+    volumes:
+    - ./elasticsearch-data:/usr/share/elasticsearch/data
+    ports:
+    - 9200:9200
+    networks:
+    - poc-elastic
+    healthcheck:
+      interval: 20s
+      retries: 10
+      test: curl -s http://localhost:9200/_cluster/health | grep -vq '"status":"red"'
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.16.0
+    container_name: kibana
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    environment:
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+    ports:
+    - 5601:5601
+    networks:
+    - poc-elastic
+    healthcheck:
+      interval: 10s
+      retries: 20
+      test: curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null http://localhost:5601/api/status
+
+networks:
+  poc-elastic:
+    driver: bridge
