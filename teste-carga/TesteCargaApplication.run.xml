@@ -1,0 +1,20 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="TesteCargaApplication" type="Application" factoryName="Application" nameIsGenerated="true">
+    <envs>
+      <env name="SERVER_PORT" value="8003" />
+      <env name="GERADOR_HOST" value="http://localhost" />
+      <env name="GERADOR_PORT" value="8002" />
+    </envs>
+    <option name="MAIN_CLASS_NAME" value="com.pocs.testecarga.TesteCargaApplication" />
+    <module name="teste-carga.main" />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="com.pocs.testecarga.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

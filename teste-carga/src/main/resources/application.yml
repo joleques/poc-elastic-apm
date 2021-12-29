@@ -1,0 +1,35 @@
+version: 01.00.00
+
+server:
+   port: ${SERVER_PORT}
+
+generator:
+  gerador-host: ${GERADOR_HOST}
+  gerador-PORT: ${GERADOR_PORT}
+
+spring:
+   application:
+     name: teste-carga
+
+
+#management.endpoints.web.exposure.include: prometheus, metrics, info, health
+management:
+  server:
+    port: 9090
+  endpoints:
+    web:
+      base-path: "/"
+      path-mapping:
+        prometheus: "metrics"
+      exposure:
+        include: "health, prometheus, info, metrics"
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    endpoint:
+      metrics:
+        enabled: false
+      prometheus:
+        enabled: true
+
