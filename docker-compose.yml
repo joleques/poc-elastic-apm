@@ -1,6 +1,37 @@
 version: '3.0'
 
-services:      
+services:       
+  teste-carga:
+    build: ./teste-carga
+    image: teste-carga:latest
+    cap_add:
+      - AUDIT_CONTROL
+      - AUDIT_READ
+    container_name: teste-carga
+    hostname: teste-carga
+    pid: host
+    ports:
+      - "8004:8004"
+    networks:
+      - poc-elastic
+    depends_on:      
+      apm-server:
+        condition: service_healthy
+    environment:
+      - SERVER_PORT=8004
+      - GERADOR_HOST=http://gerador-nomes-times-java
+      - GERADOR_PORT=8000
+      - APP_ENV=teste-carga
+      - ELASTIC_APM_SERVICE_NAME=teste-carga
+      - ELASTIC_APM_SERVER_URL=http://apm-server:8200
+      - ELASTIC_APM_APPLICATION_PACKAGES=com.pocs.testecarga.*
+      - ELASTIC_APM_PROFILING_INFERRED_SPANS_ENABLED=true
+      - ELASTIC_APM_ENABLE_LOG_CORRELATION=true
+    healthcheck:
+      interval: 10s
+      retries: 100
+      test: curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null http://localhost:9090/health
+           
   gerador-nomes-times-java:
     build: ./gerador-nome-times
     image: gerador-nomes-times-java:latest
@@ -49,8 +80,6 @@ services:
       - poc-elastic
     depends_on:
       apm-server:
-        condition: service_healthy
-      nome-time-java:
         condition: service_healthy
     environment:
       - SERVER_PORT=8002

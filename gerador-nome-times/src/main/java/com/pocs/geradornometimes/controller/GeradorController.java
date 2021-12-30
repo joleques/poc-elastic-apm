@@ -4,6 +4,8 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,7 +26,7 @@ public class GeradorController {
 	private GeradorRepositorio cidadeRepositorio;
 	
 	@GetMapping("/nome-time/{codigoTime}")
-	public ApiResult getNomeTime(@PathVariable Long codigoTime) {
+	public ResponseEntity<ApiResult> getNomeTime(@PathVariable Long codigoTime) {
 		Header header = new Header(codigoTime, "gerador-service");
 		
 		try {
@@ -34,12 +36,12 @@ public class GeradorController {
 
 			LOGGER.info(String.format("Detalhes %s retornado com sucesso", nome), StructuredArguments.keyValue("header", header));
 			
-			return ApiResult.sucesso(nome);
+			return new ResponseEntity<ApiResult>(ApiResult.sucesso(nome), HttpStatus.OK);
 		}catch (Exception e) {
 
 			LOGGER.error(String.format("Problemas a buscar a nome : %s", e.getMessage()), StructuredArguments.keyValue("header", header));
 			
-			return ApiResult.erro();
+			return new ResponseEntity<ApiResult>(ApiResult.erro(), HttpStatus.BAD_GATEWAY);
 		}
 	}
 }
