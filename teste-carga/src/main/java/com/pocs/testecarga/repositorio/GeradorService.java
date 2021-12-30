@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
@@ -38,6 +39,8 @@ public class GeradorService {
 				if (count % 5 == 0)
 					Thread.sleep(1000);
 				count++;
+			}catch (HttpClientErrorException e){
+				LOGGER.error(e.getMessage(), e);
 			} catch (Exception e) {
 				LOGGER.error(e.getMessage(), e);
 				throw new RuntimeException(e);

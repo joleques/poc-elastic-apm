@@ -41,7 +41,7 @@ public class GeradorController {
 
 			LOGGER.error(String.format("Problemas a buscar a nome : %s", e.getMessage()), StructuredArguments.keyValue("header", header));
 			
-			return new ResponseEntity<ApiResult>(ApiResult.erro(), HttpStatus.BAD_GATEWAY);
+			return new ResponseEntity<ApiResult>(ApiResult.erro(), HttpStatus.BAD_REQUEST);
 		}
 	}
 }
