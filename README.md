@@ -37,6 +37,14 @@ http://localhost:5601/
 
 ![alt text](./documentos/kibana.png "Arquitetura dos Serviços")
 
+- Exemplo de Rastreio de mensagens
+
+![alt text](./documentos/trace.png "Exemplo de trace")
+
+- Exemplo de Stack Trace
+
+![alt text](./documentos/stack_trace.png "Exemplo de stack trace")
+
 # Dependências: #
 
  - Java 11
